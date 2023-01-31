@@ -42,8 +42,6 @@ contract Ballot {
                 'Only the chairperson can give access to vote');
         require(!voters[voter].voted,
                 'The voter has already voted');
-        require(voters[voter].weight == 0,
-                'The voter has weight of 0');
         voters[voter].weight = 1;
     }
 
@@ -61,21 +59,28 @@ contract Ballot {
         require(!sender.voted, 'Already voted');
         sender.voted = true;
         sender.vote = proposal;
+        if(findVote(sender.vote) != votes.length+1){
+            votecounts[findVote(sender.vote)] += sender.weight;
+            return;
+        }
+        votes.push(proposal);
+        votecounts.push(sender.weight);
+    }
+
+    function findVote(uint[] memory proposal) private view returns (uint){
         for(uint j = 0; j < votes.length; j++){
             bool flag = true;
             for(uint i = 0; i < votes[j].length; i++){
-                if(votes[j][i] != sender.vote[i]){
+                if(votes[j][i] != proposal[i]){
                     flag = false;
                     break;
                 }
             }
             if(flag){
-                votecounts[j] += sender.weight;
-                return;
+                return j;
             }
         }
-        votes.push(proposal);
-        votecounts.push(sender.weight);
+        return votes.length+1;
     }
 
     /**
@@ -88,33 +93,21 @@ contract Ballot {
         require(!sender.delegated, 'Already delegated');
         if(voters[delegate_].voted){
             Voter storage temp = voters[delegate_];
-            while(temp.delegated == true){
+            while(temp.delegated){
                 temp = voters[temp.delegate__];
             }
-            for(uint j = 0; j < votes.length; j++){
-                bool flag = true;
-                for(uint i = 0; i < votes[j].length; i++){
-                    if(votes[j][i] != temp.vote[i]){
-                        flag = false;
-                        break;
-                    }
-                }
-                if(flag){
-                    votecounts[j] += sender.weight;
-                    voters[delegate_].weight += sender.weight;
-                    sender.voted = true;
-                    sender.vote = temp.vote;
-                    sender.weight = 0;
-                    sender.delegated = true;
-                    sender.delegate__ = delegate_;
-                    return;
-                }
+            if(findVote(temp.vote) != votes.length+1){
+                votecounts[findVote(temp.vote)] += sender.weight;
+                temp.weight += sender.weight;
+                sender.voted = true;
+                sender.vote = temp.vote;
+                sender.delegated = true;
+                sender.delegate__ = delegate_;
             }
         }
         voters[delegate_].weight += sender.weight;
         sender.voted = true;
         sender.vote = voters[delegate_].vote;
-        sender.weight = 0;
         sender.delegated = true;
         sender.delegate__ = delegate_;
         return;
@@ -188,5 +181,29 @@ contract Ballot {
         auditedVoter = voters[voterAddress];
     }
 
-    
+    function checkMyVote() public view returns (uint[] memory){
+        Voter storage sender = voters[msg.sender];
+        require(sender.voted, 'You have not voted yet');
+        return sender.vote;
+    }    
+
+    function clearVote() public {
+        Voter storage sender = voters[msg.sender];
+        require(sender.voted, 'You have not voted yet');
+        votecounts[findVote(sender.vote)] -= sender.weight;
+        sender.voted = false;
+    } 
+
+    function clearDelegate() public {
+        Voter storage sender = voters[msg.sender];
+        require(sender.delegated, 'You have not delegated yet');
+        Voter storage temp = voters[sender.delegate__];
+        while(temp.delegated){
+            temp = voters[temp.delegate__];
+        }
+        votecounts[findVote(temp.vote)] -= sender.weight;
+        temp.weight -= sender.weight;
+        sender.delegated = false;
+        sender.voted = false;
+    }
 }
