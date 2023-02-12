@@ -85,7 +85,6 @@ contract Ballot {
 
     /**
     * Allows voter to delegate their vote to delegate_
-    * Voter may only delegate once
     */
     function delegate(address delegate_) public {
         Voter storage sender = voters[msg.sender];
@@ -164,6 +163,9 @@ contract Ballot {
         }
     }
 
+    /**
+    * Returns name of winning proposal
+    */
     function winnningName() public returns (string memory winningName_) {
         require(msg.sender == chairperson,
                 'Only the chairperson can return results');
@@ -175,35 +177,78 @@ contract Ballot {
 
     //auditing functions
 
+    /**
+    * Returns info about voter: who they voted for, who they delegated to
+    * Only useable by chairperson
+    */
     function auditVoter(address voterAddress) public view returns (Voter memory auditedVoter){
         require(msg.sender == chairperson, 
             'Only the chairperson can audit voters');
         auditedVoter = voters[voterAddress];
     }
 
+    /**
+    * If voter has voted, returns who they voted for
+    * If voter delegated, returns who that delegate voted for
+    */ 
     function checkMyVote() public view returns (uint[] memory){
         Voter storage sender = voters[msg.sender];
         require(sender.voted, 'You have not voted yet');
-        return sender.vote;
+        if(!sender.delegated){
+            return sender.vote;
+        }else{
+            Voter storage temp = voters[sender.delegate__];
+            while(temp.delegated){
+                temp = voters[temp.delegate__];
+            }
+            return temp.vote; //if your delegate has reset their vote, it will show that you have no vote
+        }
     }    
 
+    /**
+    * Combination of clearVote_ and clearDelegate
+    * If voter has voted, run clearVote_; if voter has delegated, run clearDelegate
+    */
     function clearVote() public {
         Voter storage sender = voters[msg.sender];
         require(sender.voted, 'You have not voted yet');
+        if(sender.delegated){
+            clearDelegate();
+        }else{
+            clearVote_();
+        }
+    }
+
+    /**
+    * If voter has voted, clears their vote and updates votecount
+    */
+    function clearVote_() private {
+        Voter storage sender = voters[msg.sender];
         votecounts[findVote(sender.vote)] -= sender.weight;
         sender.voted = false;
+        sender.vote = new uint[](0);
     } 
 
-    function clearDelegate() public {
+    /**
+    * If voter had delegated, clears their delegate and updates votecount
+    */
+    function clearDelegate() private {
         Voter storage sender = voters[msg.sender];
-        require(sender.delegated, 'You have not delegated yet');
         Voter storage temp = voters[sender.delegate__];
         while(temp.delegated){
             temp = voters[temp.delegate__];
         }
-        votecounts[findVote(temp.vote)] -= sender.weight;
-        temp.weight -= sender.weight;
-        sender.delegated = false;
-        sender.voted = false;
+        if(temp.voted){
+            votecounts[findVote(temp.vote)] -= sender.weight;
+            temp.weight -= sender.weight;
+            sender.delegated = false;
+            sender.voted = false;
+            sender.vote = new uint[](0);
+        }else{
+            temp.weight -= sender.weight;
+            sender.delegated = false;
+            sender.voted = false;
+            sender.vote = new uint[](0);
+        }
     }
 }
