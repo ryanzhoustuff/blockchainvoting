@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Let's Vote!</title>
+  </head>
+
+  <body>
+    <button id="connectButton">connect</button>
+    <br><br><br>
+    <label for="proposal" style="font-size:26px; color:blue">Ballot status</label>
+    <button id="statusButton">update</button>
+    <table id="statusTable">
+      <tr>
+        <th>Proposal</th>
+        <th>Votes</th> 
+      </tr>
+      <tr>
+        <th>***</th>
+        <th>0</th> 
+      </tr>
+    </table>
+    <label for="proposal" style="font-size:22px; color:blue">Winning proposal:</label>
+    <label id="winner" style="font-size:22px; color:blue"></label>
+    
+    <h2> Voter action </h2>
+    <!-- <form> -->
+      <button type="button" id="voteButton" > vote </button>
+      <label for="proposal">Proposal</label>
+      <input id="proposal" placeholder="" type="text"/>
+    <!-- </form> -->
+    <br>
+    <!-- <form> -->
+      <button type="button" id="delegateButton" > delegate </button>
+      <label for="delegate">Delegate vote to</label>
+      <input id="delegate" placeholder="0x" type="text" size = "46"/>
+    <!-- </form> -->
+    <br><br>
+    <h2> Chair duty </h2>
+    <!-- <form> -->
+      <button type="button" id="addButton" > add voter </button>
+      <input id="addVoter" placeholder="0x" type="text" size = "46"/>
+    <!-- </form> -->
+    <br>
+    <!-- <form> -->
+      <button type="button" id="debugVoterButton" > debug voter status </button>
+      <input id="debugVoter" placeholder="0x" type="text" size = "46"/>
+      <br>
+      <p id="voterInfo"> </p>
+    <!-- </form> -->
+    
+  </body>
+
+  <script src="./index.js" type="module"></script>
+</html>
