@@ -39,16 +39,46 @@ async function pollStatus() {
         await provider.send("eth_requestAccounts", [])
         const signer = provider.getSigner()
         const contract = new ethers.Contract(contractAddress, abi, signer)
+        //await contract.deployTransaction.wait()
         if (statusTable.rows.length <= 2) {
             statusTable.deleteRow(1)
             for (var i = 0; i < proposals.length; i++) {
                 var x = statusTable.insertRow(i + 1)
                 x.insertCell(0)
                 x.insertCell(1)
+                x.insertCell(2)
+                x.insertCell(3)
                 statusTable.rows[i + 1].cells[0].innerHTML = proposals[i]
             }
         }
-        try {
+        for(var i = 0; i < proposals.length; i++){
+           
+            try {            
+                var firstChoiceVotes = await contract.getVotesByProposalAndRank(i, 0)
+                var secondChoiceVotes = await contract.getVotesByProposalAndRank(i, 1)
+                var thirdChoiceVotes = await contract.getVotesByProposalAndRank(i, 2)
+            } catch (error) {
+                console.error(error);
+            }
+            console.log('first column:', firstChoiceVotes)
+            console.log('second column:', secondChoiceVotes)
+            console.log('third column:', thirdChoiceVotes)
+            statusTable.rows[i+1].cells[1].innerHTML = firstChoiceVotes
+            statusTable.rows[i+1].cells[2].innerHTML = secondChoiceVotes
+            statusTable.rows[i+1].cells[3].innerHTML = thirdChoiceVotes
+
+            /*console.log('first column:', )
+            try {
+                statusTable.rows[i+1].cells[1].innerHTML = await contract.getVotesByProposalAndRank(i, 0)//await contract.getVoteCountByIndex(i+1)
+                statusTable.rows[i+1].cells[2].innerHTML = await contract.getVotesByProposalAndRank(i, 1)//await contract.getVoteCountByIndex(i+1)
+                statusTable.rows[i+1].cells[3].innerHTML = await contract.getVotesByProposalAndRank(i, 2)//await contract.getVoteCountByIndex(i+1)
+            } catch (error) {
+                console.error(error);
+                // Expected output: ReferenceError: nonExistentFunction is not defined
+                // (Note: the exact output may be browser-dependent)
+            }*/
+        }
+        /*try {
             const count = await contract.getUniqueVoteCount()
             var start = statusTable.rows.length
             for (var i = 0; i < count - (start - proposals.length - 1); i++) {
@@ -70,7 +100,7 @@ async function pollStatus() {
             }
         } catch (error) {
             console.log(error)
-        }
+        }*/
     } else {
         withdrawButton.innerHTML = "Please install MetaMask"
     }

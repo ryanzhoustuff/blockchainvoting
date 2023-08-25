@@ -263,4 +263,12 @@ contract Ballot {
     ) public view onlyOwner returns (Voter memory voter_) {
         voter_ = voters[addr];
     }
+
+    function getVotesByProposalAndRank(uint256 index1, uint256 index2) public view returns (uint256 votes__){
+        for(uint i = 0; i < votes.length; i++){
+            if(votes[i][index2] == index1){
+                votes__++;
+            }
+        }
+    }
 }

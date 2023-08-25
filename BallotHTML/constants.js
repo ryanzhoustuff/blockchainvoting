@@ -2,7 +2,7 @@
 // deploying "Ballot" (tx: ...
 // deployed at 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 with 976407 gas
 //export const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-export const contractAddress = "0x7C52432F69c0FCc49d70cc64837aaB7Ff75787f0"
+export const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
 
 // copy from backend project 01-deploy-ballot.js
 export const proposals = [
@@ -109,6 +109,30 @@ export const abi = [
             {
                 internalType: "uint256",
                 name: "option_",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "uint256",
+                name: "index1",
+                type: "uint256",
+            },
+            {
+                internalType: "uint256",
+                name: "index2",
+                type: "uint256",
+            },
+        ],
+        name: "getVotesByProposalAndRank",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "votes__",
                 type: "uint256",
             },
         ],

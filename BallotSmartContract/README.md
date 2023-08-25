@@ -15,7 +15,7 @@ This project is built on Hardhat platform. It comes with a ballot contract, test
 1. install VS code   https://code.visualstudio.com/download
 2. create a folder for the ballot smart contract portion (i.e. you will need a peer folder for HTML frontend portion)
 3. open a new vs code window and open the folder
-4. clone github repository https://github.com/feileg/BallotSmartConstract.git
+4. clone github repository https://github.com/ryanzhoustuff/blockchainvoting.git
 5. install yarn on computer
 5. yarn init
 6. install hardhat:  yarn add --dev hardhat
