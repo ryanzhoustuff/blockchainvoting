@@ -67,6 +67,8 @@ async function pollStatus() {
             statusTable.rows[i+1].cells[2].innerHTML = secondChoiceVotes
             statusTable.rows[i+1].cells[3].innerHTML = thirdChoiceVotes
 
+            
+
             /*console.log('first column:', )
             try {
                 statusTable.rows[i+1].cells[1].innerHTML = await contract.getVotesByProposalAndRank(i, 0)//await contract.getVoteCountByIndex(i+1)
@@ -78,6 +80,12 @@ async function pollStatus() {
                 // (Note: the exact output may be browser-dependent)
             }*/
         }
+        const proposal = await contract.winningProposal()
+            if (proposal < proposals.length) {
+                document.getElementById("winner").innerHTML = proposal
+            } else {
+                document.getElementById("winner").innerHTML = "TIE"
+            }
         /*try {
             const count = await contract.getUniqueVoteCount()
             var start = statusTable.rows.length
